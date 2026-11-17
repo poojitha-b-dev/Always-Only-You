@@ -83,11 +83,11 @@ interface PouringKiss {
   delay: number;
 }
 
-// Plays any GIF continuously at 60% speed with zero gap between loops
+// Plays any GIF continuously at original normal speed with zero gap between loops
 function SlowSticker({
   src,
   alt,
-  speedMultiplier = 0.6,
+  speedMultiplier = 1.0,
   className = '',
 }: {
   src: string;
@@ -169,7 +169,6 @@ function SlowSticker({
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(frame.bitmap, 0, 0);
 
-          // Continuous loop at 60% speed with no pause gap
           const slowedDelay = frame.durationMs / speedMultiplier;
 
           index = (index + 1) % frames.length;
@@ -302,7 +301,6 @@ export default function LoveMe() {
       <ParticleField count={12} type="hearts" />
       <HeartBurst hearts={hearts} />
 
-      {/* Gentle Shower of Kisses Pouring Out When Gift Box Opens */}
       {giftOpened && (
         <div className="fixed inset-0 pointer-events-none z-30 overflow-hidden">
           {pouringKisses.map((kiss) => (
@@ -327,26 +325,24 @@ export default function LoveMe() {
           <h1 className="font-hand text-4xl sm:text-5xl gradient-text mb-1.5">
             Do you love me, baby?
           </h1>
-         
         </div>
 
-        {/* Sticker Frame: Starts with b1.gif, plays continuously at 60% speed */}
+        {/* Sticker Frame at Original Normal Speed */}
         <div className="flex justify-center mb-4">
-          <div className="bg-white/90 p-2.5 rounded-3xl shadow-lg border-2 border-blush-200/80 transition-all duration-700">
+          <div className="bg-white/90 p-2.5 rounded-3xl shadow-lg border-2 border-blush-200/80 transition-all duration-300">
             <SlowSticker
               key={activeSticker}
               src={activeSticker}
               alt="Reaction"
-              speedMultiplier={0.6}
+              speedMultiplier={1.0}
               className="w-32 h-32 sm:w-36 sm:h-36 object-contain rounded-2xl"
             />
           </div>
         </div>
 
-        {/* Small, Sleek Message Box */}
         {currentMessage && !giftOpened && (
           <div
-            className="glass-card rounded-2xl px-4 py-2.5 mb-5 max-w-xs mx-auto text-center shadow-sm border border-blush-200/70 transition-all duration-500"
+            className="glass-card rounded-2xl px-4 py-2.5 mb-5 max-w-xs mx-auto text-center shadow-sm border border-blush-200/70 transition-all duration-300"
             key={currentMessage}
           >
             <p className="font-hand text-base sm:text-lg text-blush-700 leading-snug">
@@ -355,14 +351,13 @@ export default function LoveMe() {
           </div>
         )}
 
-        {/* Yes / No Stage */}
         {!showGift && (
           <div className="flex flex-col items-center gap-4">
             <div className="flex items-center justify-center gap-5 flex-wrap min-h-[80px]">
               <button
                 onClick={handleYes}
                 style={{ transform: `scale(${yesScale})` }}
-                className="px-7 py-3 rounded-full bg-gradient-to-r from-blush-400 to-mutedRed-400 text-white text-lg font-bold shadow-lg hover:shadow-2xl transition-all duration-500 z-10"
+                className="px-7 py-3 rounded-full bg-gradient-to-r from-blush-400 to-mutedRed-400 text-white text-lg font-bold shadow-lg hover:shadow-2xl transition-all duration-300 z-10"
               >
                 <span className="flex items-center gap-2">
                   <Heart size={20} fill="currentColor" />
@@ -373,7 +368,7 @@ export default function LoveMe() {
               {!isNoBroken && (
                 <button
                   onClick={handleNo}
-                  className="px-5 py-2.5 rounded-full bg-lavender-200 text-lavender-700 text-sm font-bold shadow hover:bg-lavender-300 transition-all duration-300 z-20"
+                  className="px-5 py-2.5 rounded-full bg-lavender-200 text-lavender-700 text-sm font-bold shadow hover:bg-lavender-300 transition-all duration-200 z-20"
                   style={{
                     transform:
                       noCount > 0
@@ -400,14 +395,13 @@ export default function LoveMe() {
           </div>
         )}
 
-        {/* Step 1 of Finale: Interactive Gift Box */}
         {showGift && !giftOpened && (
           <div className="text-center mt-2">
             <button
               onClick={handleOpenGift}
-              className="group relative inline-flex flex-col items-center justify-center bg-white/95 border-2 border-blush-300 rounded-3xl px-7 py-5 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105 cursor-pointer"
+              className="group relative inline-flex flex-col items-center justify-center bg-white/95 border-2 border-blush-300 rounded-3xl px-7 py-5 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer"
             >
-              <div className="text-6xl sm:text-7xl mb-2 transition-transform duration-500 group-hover:scale-110">
+              <div className="text-6xl sm:text-7xl mb-2 transition-transform duration-300 group-hover:scale-110">
                 🎁
               </div>
               <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-blush-400 to-mutedRed-400 text-white text-sm font-semibold shadow">
@@ -418,7 +412,6 @@ export default function LoveMe() {
           </div>
         )}
 
-        {/* Step 2 of Finale: Gift Opened + Kisses Pouring Out */}
         {giftOpened && (
           <div className="text-center space-y-4 max-w-xs sm:max-w-sm mx-auto">
             <div className="bg-white/95 border-2 border-blush-300 rounded-3xl p-5 shadow-xl">

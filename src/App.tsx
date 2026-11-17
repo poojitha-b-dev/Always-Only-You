@@ -22,7 +22,7 @@ export default function App() {
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(ENTRY_KEY);
+      const saved = sessionStorage.getItem(ENTRY_KEY);
       if (saved === 'true') setEntered(true);
     } catch {
       // ignore
@@ -31,7 +31,7 @@ export default function App() {
 
   const handleEnter = () => {
     try {
-      localStorage.setItem(ENTRY_KEY, 'true');
+      sessionStorage.setItem(ENTRY_KEY, 'true');
     } catch {
       // ignore
     }

@@ -29,11 +29,11 @@ export default function Home({ onNavigate }: HomeProps) {
 
           {/* Couple Photo */}
           <div className="relative inline-block animate-fade-in-up mb-8" style={{ animationDelay: '0.2s' }}>
-          <div className="scrapbook-photo rounded-lg overflow-hidden rotate-[-4deg] hover:rotate-0 transition-transform duration-500">
+            <div className="scrapbook-photo rounded-lg overflow-hidden rotate-[-4deg] hover:rotate-0 transition-transform duration-500">
               <img
                 src="/pictures/pic60.jpeg"
                 alt="Us together"
-                className="w-48 sm:w-60 h-auto object-cover"
+                className="w-36 sm:w-44 h-auto object-cover"
               />
             </div>
             <div className="absolute -top-3 -right-3 text-3xl animate-heartbeat">💕</div>

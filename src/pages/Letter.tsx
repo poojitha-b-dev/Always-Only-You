@@ -99,12 +99,22 @@ export default function Letter() {
               {/* Letter header */}
               <div className="flex items-center gap-2 mb-6 text-blush-500">
                 <BookText size={20} />
-                <span className="font-hand text-xl">A letter for {siteData.boyfriendName}</span>
+                <span className="font-hand text-lg sm:text-xl">A letter for <span className="font-hand font-normal text-blush-500">Kash</span></span>
               </div>
 
-              {/* Letter body */}
-              <div className="font-serif text-lavender-800 leading-relaxed space-y-4 text-sm sm:text-base">
-                {siteData.letterContent.split('\n').map((line, idx) => {
+              {/* Letter body - Cursive font, slightly larger for a comfortable reading size */}
+              <div className="font-hand text-lg sm:text-xl text-lavender-800 leading-relaxed space-y-4">
+                {`Happiest birthday, baby ♥️. My heart is so full seeing my baby celebrate his 22nd birthday. Today might feel like just another ordinary day to you, but to me, it is the most special day of the year because it is the day the love of my life was born.
+
+Looking back, I still can't believe we've already shared a wonderful year and a half together. Before I met you, I used to pray so much for God to send me a man who would love me deeply and truly care for me. I honestly never thought wishes like that actually came true, yet here you are. You have changed my life in ways you don't even realize, and I don't even want to imagine how empty my days would feel without you.
+
+You are the most precious person in my life, and being with you feels just like magic—so comforting and sweet that I still can't believe I get to call you mine. Sometimes I just look at you in awe, wondering how someone so loyal, gentle, considerate, and cute can even exist. You make my saddest days brighter and warmer, and I appreciate every little thing that brought us closer together. Being with you has shown me what true love actually feels like—how beautiful is it to love someone so deeply and be loved the exact same way in return?
+
+Thank you for always standing by my side, and for constantly trying to grow and be your best for us. Even though you are already completely perfect in my eyes, seeing how much effort you put into us makes me fall for you even more. Because of everything you are, I am—and always will be—so proud of you. Please promise me you will never doubt yourself, and never dare to worry that I might ever leave you. How could anyone ever walk away from someone they love this uncontrollably, especially after receiving so much love in return? All I want is to spend the rest of my life with you. Will you stay with me forever?
+
+As much as I wanted to be with you today, I'm so sorry I couldn't spend time with you—I wish I could have at least come to your office in the evening just to see you. It hurts to miss your special day, so I'm making you a promise right now: next year, I will definitely be right there beside you to celebrate your birthday properly, okay?
+
+You're the best thing that has ever happened to me, and I love you so much!`.split('\n').map((line, idx) => {
                   if (line.trim() === '') {
                     return <div key={idx} className="h-3" />;
                   }
@@ -122,8 +132,8 @@ export default function Letter() {
 
               {/* Letter signature */}
               <div className="mt-8 text-right">
-                <p className="font-hand text-lg text-blush-600">{siteData.letterDate}</p>
-                <p className="font-hand text-2xl gradient-text">{siteData.yourName}</p>
+                <p className="font-hand text-lg sm:text-xl text-blush-600">{siteData.letterDate}</p>
+                <p className="font-hand text-2xl sm:text-3xl text-blush-600">Pooja</p>
               </div>
 
               {/* Decorative corners */}
@@ -141,13 +151,6 @@ export default function Letter() {
               >
                 Close letter
               </button>
-            </div>
-
-            {/* Customization note */}
-            <div className="mt-6 glass-card rounded-2xl p-4 text-center">
-              <p className="text-sm text-lavender-500">
-                This is placeholder letter content. Replace it with your own words from the heart.
-              </p>
             </div>
           </div>
         )}

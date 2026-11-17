@@ -4,7 +4,15 @@ export default {
   theme: {
     extend: {
       colors: {
+        rose: {
+          DEFAULT: '#D9829B',
+          light: '#E8A9BC',
+          dark: '#B85F7E',
+        },
+        ink: '#453B48',
+        inkSoft: '#6E6273',
         blush: {
+          DEFAULT: '#F8DDE5',
           50: '#fff5f8',
           100: '#ffe9f0',
           200: '#ffd3e1',
@@ -17,6 +25,7 @@ export default {
           900: '#83123a',
         },
         lavender: {
+          DEFAULT: '#DCD5F5',
           50: '#f7f6ff',
           100: '#eeeafd',
           200: '#dddbfb',
@@ -29,6 +38,7 @@ export default {
           900: '#4a3b80',
         },
         cream: {
+          DEFAULT: '#FFF8EF',
           50: '#fffef8',
           100: '#fffaec',
           200: '#fff3d4',
@@ -67,11 +77,17 @@ export default {
       },
       fontFamily: {
         hand: ['Caveat', 'cursive'],
-        serif: ['Lora', 'Georgia', 'serif'],
+        serif: ['Cormorant Garamond', 'Lora', 'Georgia', 'serif'],
         sans: ['Poppins', 'system-ui', 'sans-serif'],
+      },
+      boxShadow: {
+        soft: '0 4px 20px rgba(217, 130, 155, 0.14)',
+        card: '0 10px 30px rgba(69, 59, 72, 0.08)',
+        glow: '0 8px 28px rgba(217, 130, 155, 0.45)',
       },
       animation: {
         'float-up': 'floatUp 3s ease-out forwards',
+        'floatUp': 'floatRise 12s linear infinite',
         'gentle-float': 'gentleFloat 4s ease-in-out infinite',
         'wiggle': 'wiggle 0.5s ease-in-out',
         'bounce-happy': 'bounceHappy 0.6s ease-in-out infinite',
@@ -79,7 +95,7 @@ export default {
         'envelope-open': 'envelopeOpen 0.8s ease-out forwards',
         'letter-rise': 'letterRise 0.6s ease-out 0.3s forwards',
         'pulse-soft': 'pulseSoft 2s ease-in-out infinite',
-        'twinkle': 'twinkle 2s ease-in-out infinite',
+        'twinkle': 'twinkle 2.5s ease-in-out infinite',
         'spin-slow': 'spin 8s linear infinite',
         'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
         'fade-in': 'fadeIn 0.5s ease-out forwards',
@@ -96,6 +112,12 @@ export default {
         floatUp: {
           '0%': { transform: 'translateY(0) scale(1)', opacity: '1' },
           '100%': { transform: 'translateY(-100vh) scale(0.5)', opacity: '0' },
+        },
+        floatRise: {
+          '0%': { transform: 'translateY(0) scale(0.9)', opacity: '0' },
+          '15%': { opacity: '0.7' },
+          '85%': { opacity: '0.7' },
+          '100%': { transform: 'translateY(-115vh) scale(1.1)', opacity: '0' },
         },
         gentleFloat: {
           '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },

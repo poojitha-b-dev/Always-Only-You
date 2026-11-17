@@ -1,49 +1,62 @@
 import { useEffect, useState } from 'react';
 
 interface DurationResult {
-  days: number;
   hours: number;
   minutes: number;
   seconds: number;
   totalDays: number;
-  totalMonths: number;
-  totalYears: number;
+  years: number;
+  months: number;
+  days: number;
 }
 
-function calcDuration(startDate: string): DurationResult {
-  const start = new Date(startDate).getTime();
-  const now = Date.now();
-  const diff = Math.max(0, now - start);
+const MEET_DATE = new Date(2025, 5, 15, 0, 0, 0); // June 15, 2025 (month is 0-indexed: 5 = June)
 
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+function calcDuration(): DurationResult {
+  const now = new Date();
+  const diff = Math.max(0, now.getTime() - MEET_DATE.getTime());
+
+  const totalDays = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-  const startYear = new Date(startDate).getFullYear();
-  const totalYears = days / 365;
-  const totalMonths = Math.floor(totalYears * 12);
+  // Exact calendar years, months, and remaining days since June 15, 2025
+  let years = now.getFullYear() - MEET_DATE.getFullYear();
+  let months = now.getMonth() - MEET_DATE.getMonth();
+  let days = now.getDate() - MEET_DATE.getDate();
+
+  if (days < 0) {
+    months -= 1;
+    const prevMonthDays = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+    days += prevMonthDays;
+  }
+
+  if (months < 0) {
+    years -= 1;
+    months += 12;
+  }
 
   return {
-    days: days % 30,
     hours,
     minutes,
     seconds,
-    totalDays: days,
-    totalMonths,
-    totalYears: Math.floor(totalYears),
+    totalDays,
+    years: Math.max(0, years),
+    months: Math.max(0, months),
+    days: Math.max(0, days),
   };
 }
 
-export default function RelationshipCounter({ startDate }: { startDate: string }) {
-  const [duration, setDuration] = useState<DurationResult>(() => calcDuration(startDate));
+export default function RelationshipCounter(_props: { startDate?: string }) {
+  const [duration, setDuration] = useState<DurationResult>(() => calcDuration());
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setDuration(calcDuration(startDate));
+      setDuration(calcDuration());
     }, 1000);
     return () => clearInterval(interval);
-  }, [startDate]);
+  }, []);
 
   const units = [
     { label: 'Days', value: duration.totalDays },
@@ -70,7 +83,9 @@ export default function RelationshipCounter({ startDate }: { startDate: string }
         ))}
       </div>
       <p className="mt-4 font-hand text-xl text-blush-600">
-        {duration.totalYears} years, {duration.totalMonths % 12} months, and {duration.totalDays} days of loving you
+        {duration.years} {duration.years === 1 ? 'year' : 'years'}, {duration.months}{' '}
+        {duration.months === 1 ? 'month' : 'months'}, and {duration.days}{' '}
+        {duration.days === 1 ? 'day' : 'days'} since June 15, 2025 ♥
       </p>
     </div>
   );

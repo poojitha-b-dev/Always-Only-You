@@ -7,7 +7,8 @@ export type PageId =
   | 'open-when'
   | 'memories'
   | 'things-i-love'
-  | 'letter';
+  | 'letter'
+  | 'birthday';
 
 interface NavbarProps {
   currentPage: PageId;
@@ -53,7 +54,7 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
             onClick={() => handleNav('home')}
             className="font-hand text-2xl text-blush-600 hover:text-blush-500 transition-colors"
           >
-            My Little Universe ♥
+            Always & Only You ♥
           </button>
 
           {/* Desktop links */}

@@ -23,7 +23,7 @@ const STICKERS = {
     '/stickers/13.gif',
     '/stickers/14.gif',
   ],
-  kissCelebration: '/stickers/17.gif',
+  kissCelebration: '/stickers/15.gif',
 };
 
 const NO_STAGES = [

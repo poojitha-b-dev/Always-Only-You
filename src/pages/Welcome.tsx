@@ -2,9 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { ArrowRight, Sparkles, Heart } from 'lucide-react';
 import Cat from '@/components/Cat';
 import ParticleField from '@/components/ParticleField';
+import type { UserProfile } from '@/types';
 
 interface WelcomeProps {
-  onEnter: () => void;
+  onPassSecurity: () => void;
 }
 
 interface FloatingHeart {
@@ -43,7 +44,7 @@ function SmartSticker({ name }: { name: string }) {
   );
 }
 
-export default function Welcome({ onEnter }: WelcomeProps) {
+export default function Welcome({ onPassSecurity }: WelcomeProps) {
   const [answer, setAnswer] = useState('');
   const [wrongAttempts, setWrongAttempts] = useState(0);
   const [isCorrect, setIsCorrect] = useState(false);
@@ -77,9 +78,9 @@ export default function Welcome({ onEnter }: WelcomeProps) {
     if (ACCEPTED_ANSWERS.includes(normalized)) {
       setIsCorrect(true);
       triggerHeartWave();
-      setTimeout(onEnter, 3200);
+      setTimeout(onPassSecurity, 3200);
     } else {
-      setAnswer(''); // Clears the text box automatically on a wrong guess
+      setAnswer('');
       setWrongAttempts((prev) => Math.min(prev + 1, 7));
     }
   };
@@ -97,79 +98,36 @@ export default function Welcome({ onEnter }: WelcomeProps) {
     }
 
     if (wrongAttempts === 0) {
-      return {
-        sticker: 'a1',
-        catEmoji: '🐱',
-        reactionText: '',
-      };
+      return { sticker: 'a1', catEmoji: '🐱', reactionText: '' };
     }
-
     if (wrongAttempts === 1) {
-      return {
-        sticker: 'a2',
-        catEmoji: '😼',
-        reactionText: 'Excuse me? Are you serious?',
-      };
+      return { sticker: 'a2', catEmoji: '😼', reactionText: 'Excuse me? Are you serious?' };
     }
-
     if (wrongAttempts === 2) {
-      return {
-        sticker: 'a3',
-        catEmoji: '🙀',
-        reactionText: 'You forgot already? Think again',
-      };
+      return { sticker: 'a3', catEmoji: '🙀', reactionText: 'You forgot already? Think again' };
     }
-
     if (wrongAttempts === 3) {
-      return {
-        sticker: 'a4',
-        catEmoji: '😾',
-        reactionText: 'Stop guessing random places',
-      };
+      return { sticker: 'a4', catEmoji: '😾', reactionText: 'Stop guessing random places' };
     }
-
     if (wrongAttempts === 4) {
-      return {
-        sticker: 'a5',
-        catEmoji: '💢',
-        reactionText: "That's it, I'm mad now",
-      };
+      return { sticker: 'a5', catEmoji: '💢', reactionText: "That's it, I'm mad now" };
     }
-
     if (wrongAttempts === 5) {
       if (hintStep === 1) {
-        return {
-          sticker: 'a6',
-          catEmoji: '😜',
-          reactionText: 'Just playing! Give me 10 kisses first... or maybe I won’t tell',
-        };
+        return { sticker: 'a6', catEmoji: '😜', reactionText: 'Just playing! Give me 10 kisses first...' };
       }
       if (hintStep === 2) {
-        return {
-          sticker: 'a7',
-          catEmoji: '😽',
-          reactionText: "Fine, don't forget my 10 kisses! It starts with 'V'",
-        };
+        return { sticker: 'a7', catEmoji: '😽', reactionText: "Fine, don't forget my 10 kisses! It starts with 'V'" };
       }
-      return {
-        sticker: 'a5(1)',
-        catEmoji: '😿',
-        reactionText: 'You’re struggling so bad... need a hint?',
-      };
+      return { sticker: 'a5(1)', catEmoji: '😿', reactionText: 'You’re struggling so bad... need a hint?' };
     }
-
     if (wrongAttempts === 6) {
-      return {
-        sticker: 'a8',
-        catEmoji: '🥺',
-        reactionText: 'Last chance before I lock the door',
-      };
+      return { sticker: 'a8', catEmoji: '🥺', reactionText: 'Last chance before I lock the door' };
     }
-
     return {
       sticker: 'a9',
       catEmoji: '🚪',
-      reactionText: 'BYE~ Button locked! Refresh the page (and owe me 10 kisses) to try again',
+      reactionText: 'BYE~ Button locked! Refresh the page to try again',
     };
   };
 
@@ -179,18 +137,13 @@ export default function Welcome({ onEnter }: WelcomeProps) {
     <div className="relative min-h-screen bg-gradient-to-br from-lavender-100 via-blush-100 to-cream-100 flex items-center justify-center overflow-hidden p-4">
       <ParticleField count={20} type="mixed" />
 
-      {/* Full-screen bottom-to-top floating hearts that disappear */}
       {hearts.length > 0 && (
         <div className="pointer-events-none fixed inset-0 z-50 overflow-hidden">
           {hearts.map((h) => (
             <div
               key={h.id}
               className={`absolute -bottom-10 animate-float-up ${h.size}`}
-              style={{
-                left: `${h.left}%`,
-                animationDelay: `${h.delay}s`,
-                animationDuration: `${h.duration}s`,
-              }}
+              style={{ left: `${h.left}%`, animationDelay: `${h.delay}s`, animationDuration: `${h.duration}s` }}
             >
               {h.emoji}
             </div>
@@ -198,121 +151,81 @@ export default function Welcome({ onEnter }: WelcomeProps) {
         </div>
       )}
 
-      {/* Subtle corner cat decorations */}
-      <div className="absolute top-10 left-10 opacity-20 hidden sm:block">
-        <Cat type="neutral" size={60} />
-      </div>
-      <div className="absolute bottom-10 right-10 opacity-20 hidden sm:block">
-        <Cat type="neutral" size={60} />
-      </div>
-
       <div className="relative z-10 w-full max-w-lg">
         <div className="glass-card rounded-3xl p-8 sm:p-10 shadow-2xl animate-fade-in-up">
-          {/* 1. Sticker at the Top */}
           <div className="flex justify-center mb-5">
             <div className={wrongAttempts === 0 && !isCorrect ? 'animate-gentle-float' : 'animate-scale-in'}>
               <SmartSticker name={current.sticker} />
             </div>
           </div>
 
-          {/* 2. "Wait a second... Who are you?" ONLY on initial screen */}
           {wrongAttempts === 0 && !isCorrect && (
             <h1 className="font-hand text-3xl sm:text-4xl text-center text-blush-700 mb-6">
               Wait a second... Who are you?
             </h1>
           )}
 
-          {/* 3. Reaction Message + Cat Emoji above Question */}
           {wrongAttempts > 0 && !isCorrect && (
             <div className="mb-6 text-center animate-scale-in">
-              <p className="font-hand text-2xl text-mutedRed-600 mb-2">
-                {current.reactionText}
-              </p>
-              <div className="text-4xl animate-shake-sad select-none">
-                {current.catEmoji}
-              </div>
+              <p className="font-hand text-2xl text-mutedRed-600 mb-2">{current.reactionText}</p>
+              <div className="text-4xl animate-shake-sad select-none">{current.catEmoji}</div>
             </div>
           )}
 
-          {/* Success State */}
           {isCorrect && (
             <div className="text-center animate-scale-in">
-              <h1 className="font-hand text-3xl sm:text-4xl gradient-text mb-4">
-                {current.reactionText}
-              </h1>
-              <div className="text-5xl mb-4 animate-bounce-happy">
-                {current.catEmoji}
-              </div>
-              <p className="text-lavender-600 text-sm">
-                Welcome to your little universe...
-              </p>
+              <h1 className="font-hand text-3xl sm:text-4xl gradient-text mb-4">{current.reactionText}</h1>
+              <div className="text-5xl mb-4 animate-bounce-happy">{current.catEmoji}</div>
+              <p className="text-lavender-600 text-sm">Security passed successfully...</p>
             </div>
           )}
 
-          {/* 4. Question + Input + Submit Button */}
           {!isCorrect && (
             <form onSubmit={handleSubmit} className="space-y-4">
-              <p className="text-center text-lavender-700 text-sm sm:text-base">
-                {QUESTION}
-              </p>
-
+              <p className="text-center text-lavender-700 text-sm sm:text-base">{QUESTION}</p>
               <input
                 type="text"
                 value={answer}
                 onChange={(e) => setAnswer(e.target.value)}
                 disabled={isLocked}
-                placeholder={isLocked ? 'Refresh page to unlock...' : 'Type your answer here...'}
+                placeholder={isLocked ? 'Locked...' : 'Type your answer here...'}
                 autoFocus
-                className="w-full px-5 py-3 rounded-2xl border-2 border-blush-200 bg-white/80 text-center text-lg text-lavender-800 placeholder-blush-300 focus:outline-none focus:border-blush-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-5 py-3 rounded-2xl border-2 border-blush-200 bg-white/80 text-center text-lg text-lavender-800 placeholder-blush-300 focus:outline-none focus:border-blush-400"
               />
-
               <button
                 type="submit"
                 disabled={isLocked}
-                className={`w-full px-6 py-3 rounded-2xl bg-gradient-to-r from-blush-400 to-lavender-500 text-white font-medium shadow-lg transition-all duration-300 flex items-center justify-center gap-2 ${
-                  isLocked
-                    ? 'opacity-45 cursor-not-allowed pointer-events-none grayscale'
-                    : 'hover:shadow-xl hover:scale-[1.02]'
+                className={`w-full px-6 py-3 rounded-2xl bg-gradient-to-r from-blush-400 to-lavender-500 text-white font-medium shadow-lg transition-all flex items-center justify-center gap-2 ${
+                  isLocked ? 'opacity-45 cursor-not-allowed' : 'hover:scale-[1.02]'
                 }`}
               >
-                {isLocked ? 'Locked (Refresh Page)' : 'Let me in'}
+                {isLocked ? 'Locked' : 'Let me in'}
                 {!isLocked && <ArrowRight size={18} />}
               </button>
             </form>
           )}
 
-          {/* 5. Hint Buttons below Submit Button (Attempt 5) */}
           {!isCorrect && wrongAttempts === 5 && (
             <div className="mt-4 flex flex-col items-center gap-2 animate-scale-in">
               {hintStep === 0 && (
                 <button
                   type="button"
                   onClick={() => setHintStep(1)}
-                  className="px-4 py-2 rounded-full bg-lavender-100 hover:bg-lavender-200 text-lavender-700 text-sm font-medium transition-all flex items-center gap-1.5 shadow-sm"
+                  className="px-4 py-2 rounded-full bg-lavender-100 text-lavender-700 text-sm font-medium flex items-center gap-1.5 shadow-sm"
                 >
-                  <Sparkles size={15} />
-                  Need a Hint?
+                  <Sparkles size={15} /> Need a Hint?
                 </button>
               )}
-
               {hintStep === 1 && (
                 <button
                   type="button"
                   onClick={() => setHintStep(2)}
-                  className="px-4 py-2 rounded-full bg-blush-400 hover:bg-blush-500 text-white text-sm font-medium transition-all flex items-center gap-1.5 shadow-md animate-bounce"
+                  className="px-4 py-2 rounded-full bg-blush-400 text-white text-sm font-medium flex items-center gap-1.5 shadow-md animate-bounce"
                 >
-                  <Heart size={15} fill="currentColor" />
-                  Fine, I promise 10 kisses 😘
+                  <Heart size={15} fill="currentColor" /> Fine, I promise 10 kisses 😘
                 </button>
               )}
             </div>
-          )}
-
-          {/* Attempt Number */}
-          {!isCorrect && wrongAttempts > 0 && (
-            <p className="text-center text-xs text-lavender-400 mt-4">
-              Attempt {wrongAttempts}
-            </p>
           )}
         </div>
       </div>

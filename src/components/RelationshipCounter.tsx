@@ -10,7 +10,7 @@ interface DurationResult {
   days: number;
 }
 
-const MEET_DATE = new Date(2025, 5, 15, 0, 0, 0); // June 15, 2025 (month is 0-indexed: 5 = June)
+const MEET_DATE = new Date(2025, 6, 13, 0, 0, 0); // July 13, 2025 (month is 0-indexed: 6 = July)
 
 function calcDuration(): DurationResult {
   const now = new Date();
@@ -21,7 +21,7 @@ function calcDuration(): DurationResult {
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-  // Exact calendar years, months, and remaining days since June 15, 2025
+  // Exact calendar years, months, and remaining days since July 13, 2025
   let years = now.getFullYear() - MEET_DATE.getFullYear();
   let months = now.getMonth() - MEET_DATE.getMonth();
   let days = now.getDate() - MEET_DATE.getDate();
@@ -67,6 +67,9 @@ export default function RelationshipCounter(_props: { startDate?: string }) {
 
   return (
     <div className="text-center">
+      <p className="text-lavender-700 text-sm sm:text-base font-serif mb-4">
+        Every second is a treasure. Here is the count.
+      </p>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         {units.map((unit) => (
           <div
@@ -85,7 +88,7 @@ export default function RelationshipCounter(_props: { startDate?: string }) {
       <p className="mt-4 font-hand text-xl text-blush-600">
         {duration.years} {duration.years === 1 ? 'year' : 'years'}, {duration.months}{' '}
         {duration.months === 1 ? 'month' : 'months'}, and {duration.days}{' '}
-        {duration.days === 1 ? 'day' : 'days'} since June 15, 2025 ♥
+        {duration.days === 1 ? 'day' : 'days'} since July 13, 2025 ♥
       </p>
     </div>
   );

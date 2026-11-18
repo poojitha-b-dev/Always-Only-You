@@ -9,33 +9,113 @@ import Memories from '@/pages/Memories';
 import ThingsILove from '@/pages/ThingsILove';
 import Letter from '@/pages/Letter';
 import BirthdayPage from '@/pages/BirthdayPage';
+import type { UserProfile, NoteItem } from '@/types';
 
-const ENTRY_KEY = 'universe-entered';
+const SECURITY_KEY = 'security-passed';
+const USER_KEY = 'active-user';
+const LOGIN_TIME_KEY = 'login-timestamp';
+const NOTES_KEY = 'shared-notes-vault';
+const LETTERS_KEY = 'shared-letters-vault';
+
+const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
 
 export default function App() {
-  const [entered, setEntered] = useState(false);
+  const [securityPassed, setSecurityPassed] = useState(false);
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [currentPage, setCurrentPage] = useState<PageId>('home');
   const [transitioning, setTransitioning] = useState(false);
   const [easterEggFound, setEasterEggFound] = useState(false);
   const [showEasterEgg, setShowEasterEgg] = useState(false);
   const [catClicks, setCatClicks] = useState(0);
 
+  const [activePopupItem, setActivePopupItem] = useState<{ item: NoteItem; type: 'note' | 'letter' } | null>(null);
+
   useEffect(() => {
     try {
-      const saved = sessionStorage.getItem(ENTRY_KEY);
-      if (saved === 'true') setEntered(true);
+      const loginTime = localStorage.getItem(LOGIN_TIME_KEY);
+      const now = Date.now();
+
+      if (loginTime && now - parseInt(loginTime, 10) > TWO_DAYS_MS) {
+        localStorage.removeItem(LOGIN_TIME_KEY);
+        sessionStorage.clear();
+        setSecurityPassed(false);
+        setCurrentUser(null);
+        return;
+      }
+
+      if (sessionStorage.getItem(SECURITY_KEY) === 'true') {
+        setSecurityPassed(true);
+      }
+      const savedUser = sessionStorage.getItem(USER_KEY) as UserProfile;
+      if (savedUser) {
+        setCurrentUser(savedUser);
+        checkUnreadNotes(savedUser);
+      }
     } catch {
       // ignore
     }
   }, []);
 
-  const handleEnter = () => {
+  const checkUnreadNotes = (user: UserProfile) => {
     try {
-      sessionStorage.setItem(ENTRY_KEY, 'true');
+      const rawNotes = localStorage.getItem(NOTES_KEY);
+      const rawLetters = localStorage.getItem(LETTERS_KEY);
+      
+      const notes: NoteItem[] = rawNotes ? JSON.parse(rawNotes) : [];
+      const letters: NoteItem[] = rawLetters ? JSON.parse(rawLetters) : [];
+      
+      const unreadNotes = notes.filter((n) => n.recipient === user && !n.isRead);
+      const unreadLetters = letters.filter((l) => l.recipient === user && !l.isRead);
+
+      if (unreadNotes.length > 0) {
+        setActivePopupItem({ item: unreadNotes[0], type: 'note' });
+      } else if (unreadLetters.length > 0) {
+        setActivePopupItem({ item: unreadLetters[0], type: 'letter' });
+      }
     } catch {
       // ignore
     }
-    setEntered(true);
+  };
+
+  const handlePassSecurity = () => {
+    try {
+      sessionStorage.setItem(SECURITY_KEY, 'true');
+    } catch {
+      // ignore
+    }
+    setSecurityPassed(true);
+  };
+
+  const handleSelectUser = (user: UserProfile) => {
+    try {
+      sessionStorage.setItem(USER_KEY, user);
+      localStorage.setItem(LOGIN_TIME_KEY, Date.now().toString());
+    } catch {
+      // ignore
+    }
+    setCurrentUser(user);
+    setCurrentPage('home');
+    checkUnreadNotes(user);
+  };
+
+  const handleOpenUnreadMessage = () => {
+    if (!activePopupItem) return;
+    try {
+      const storageKey = activePopupItem.type === 'letter' ? LETTERS_KEY : NOTES_KEY;
+      const raw = localStorage.getItem(storageKey);
+      if (raw) {
+        const items: NoteItem[] = JSON.parse(raw);
+        const updated = items.map((n) =>
+          n.id === activePopupItem.item.id ? { ...n, isRead: true } : n
+        );
+        localStorage.setItem(storageKey, JSON.stringify(updated));
+      }
+    } catch {
+      // ignore
+    }
+
+    setActivePopupItem(null);
+    setCurrentPage('letter');
   };
 
   const handleNavigate = (page: PageId) => {
@@ -57,15 +137,75 @@ export default function App() {
     }
   };
 
-  if (!entered) {
-    return <Welcome onEnter={handleEnter} />;
+  if (!securityPassed) {
+    return <Welcome onPassSecurity={handlePassSecurity} />;
+  }
+
+  if (!currentUser) {
+    return (
+      <div className="relative min-h-screen bg-gradient-to-br from-lavender-100 via-blush-100 to-cream-100 flex items-center justify-center p-4">
+        <div className="relative z-10 w-full max-w-md">
+          <div className="glass-card rounded-3xl p-8 sm:p-10 text-center shadow-2xl animate-fade-in-up">
+            <div className="text-5xl mb-4 animate-gentle-float">💖</div>
+            <h1 className="font-hand text-3xl sm:text-4xl text-blush-700 mb-2">
+              Always & Only You
+            </h1>
+            <p className="text-lavender-600 text-sm mb-8">
+              Who is opening our little world right now?
+            </p>
+
+            <div className="space-y-4 mb-6">
+              <button
+                onClick={() => handleSelectUser('pooja')}
+                className="w-full py-4 rounded-2xl font-hand text-2xl bg-white/80 text-blush-600 hover:bg-blush-100 shadow-md transition-all"
+              >
+                🌸 Pooja
+              </button>
+              <button
+                onClick={() => handleSelectUser('kash')}
+                className="w-full py-4 rounded-2xl font-hand text-2xl bg-white/80 text-lavender-700 hover:bg-lavender-100 shadow-md transition-all"
+              >
+                💙 Kash
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const isBirthday = currentPage === 'birthday';
+  const senderName = activePopupItem?.item.sender === 'pooja' ? 'Pooja' : 'Kash';
+  const itemTypeLabel = activePopupItem?.type === 'letter' ? 'letter' : 'note';
 
   return (
     <div className="relative min-h-screen">
-      {!isBirthday && <Navbar currentPage={currentPage} onNavigate={handleNavigate} />}
+      {!isBirthday && (
+        <Navbar
+          currentPage={currentPage}
+          onNavigate={handleNavigate}
+          currentUser={currentUser}
+        />
+      )}
+
+      {/* Notification popup positioned lower down with a slower, gentle floating motion */}
+      {securityPassed && activePopupItem && (
+        <div className="fixed top-40 right-40 z-[70] flex flex-col items-end transition-all duration-[2000ms]">
+          <div className="w-4 h-4 bg-white border-t-2 border-l-2 border-blush-300 rotate-45 mr-8 -mb-2 shadow-sm relative z-10" />
+          
+          <div 
+            onClick={handleOpenUnreadMessage}
+            className="glass-card rounded-3xl px-5 py-4 shadow-2xl border-2 border-blush-300 bg-white/95 cursor-pointer hover:scale-105 transition-all flex flex-col items-center text-center max-w-[220px]"
+          >
+            <div className="w-12 h-12 rounded-full bg-blush-100 flex items-center justify-center text-2xl shadow-inner mb-2 animate-gentle-float">
+              💌
+            </div>
+            <h4 className="font-hand text-xl text-blush-600 leading-tight">
+              New {itemTypeLabel} from {senderName}!
+            </h4>
+          </div>
+        </div>
+      )}
 
       <main className={`transition-opacity duration-300 ${transitioning ? 'opacity-0' : 'opacity-100'}`}>
         {currentPage === 'home' && <Home onNavigate={handleNavigate} />}
@@ -73,11 +213,11 @@ export default function App() {
         {currentPage === 'open-when' && <OpenWhen />}
         {currentPage === 'memories' && <Memories />}
         {currentPage === 'things-i-love' && <ThingsILove />}
-        {currentPage === 'letter' && <Letter />}
+        {currentPage === 'letter' && <Letter currentUser={currentUser} />}
         {currentPage === 'birthday' && <BirthdayPage onBack={() => handleNavigate('home')} />}
       </main>
 
-      {/* Easter Egg: Hidden cat in footer */}
+      {/* Footer */}
       {!isBirthday && (
         <footer className="relative bg-gradient-to-t from-lavender-100 to-transparent py-8 px-4 text-center">
           <div className="max-w-2xl mx-auto">

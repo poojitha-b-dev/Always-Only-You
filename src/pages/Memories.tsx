@@ -470,10 +470,11 @@ export default function Memories() {
                   <div className={`flex-1 ml-12 sm:ml-0 ${isLeft ? 'sm:pr-8' : 'sm:pl-8'}`}>
                     <div className="glass-card rounded-3xl p-5 shadow-lg hover-lift">
                       {/* Media Ticker */}
-                      <div className={`relative w-full mb-4 scrapbook-photo rounded-lg overflow-hidden ${rotation} bg-white p-2 shadow-md transition-transform duration-500 hover:rotate-0`}>
+                      {/* Media Ticker */}
+                      <div className={`relative w-full mb-4 scrapbook-photo overflow-hidden ${rotation} bg-white p-2 shadow-md transition-transform duration-500 hover:rotate-0`}>
                         <div 
-                          className={`relative mx-auto overflow-hidden rounded bg-stone-900 flex items-center justify-center ${
-                            isPortraitPhoneStyle ? 'max-w-[210px] h-[340px] border-4 border-stone-800/10 rounded-2xl shadow-inner' : 'w-full h-64 sm:h-72'
+                          className={`relative mx-auto overflow-hidden bg-blush-50 p-2 flex items-center justify-center ${
+                            isPortraitPhoneStyle ? 'w-fit' : 'w-full h-64 sm:h-72'
                           }`}
                         >
                           {isVideoBlock ? (
@@ -484,13 +485,15 @@ export default function Memories() {
                               controls
                               preload="auto"
                               playsInline
-                              className="w-full h-full object-contain rounded"
+                              className="w-full h-full object-contain"
                             />
                           ) : (
                             <img
                               src={currentMediaUrl}
                               alt={memory.title}
-                              className="w-full h-full object-contain transition-all duration-500 ease-in-out cursor-pointer"
+                              className={`${
+                                isPortraitPhoneStyle ? 'max-h-[340px] w-auto h-auto' : 'w-full h-full object-contain'
+                              } transition-all duration-500 ease-in-out cursor-pointer`}
                               onClick={() => {
                                 const photoIdx = photosWithImages.findIndex((p) => p.url === currentMediaUrl);
                                 if (photoIdx !== -1) setLightboxIndex(photoIdx);

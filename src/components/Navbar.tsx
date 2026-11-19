@@ -70,16 +70,21 @@ export default function Navbar({ currentPage, onNavigate }: NavbarProps) {
             : 'bg-transparent py-5'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between gap-8 lg:gap-14">
           <button
             onClick={() => handleNav('home')}
-            className="font-hand text-2xl text-blush-600 hover:text-blush-500 transition-colors shrink-0"
+            className="flex items-center gap-3 text-blush-600 hover:text-blush-500 transition-colors shrink-0 mr-auto group"
           >
-            Always & Only You ♥
+            <img
+              src="/pictures/pic5.png"
+              alt="Always & Only You logo"
+              className="w-11 h-11 rounded-full object-cover ring-2 ring-blush-200 shadow-sm group-hover:scale-105 transition-transform"
+            />
+            <span className="font-hand text-[26px] leading-none">Always & Only You ♥</span>
           </button>
 
-          {/* Desktop links shifted slightly to the right for perfect balance */}
-          <div className="hidden lg:flex items-center gap-1.5 ml-auto mr-4">
+          {/* Desktop links anchored to the right with extra space from the brand */}
+          <div className="hidden lg:flex items-center gap-1.5 shrink-0">
             {mainNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = currentPage === item.id;

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Camera, Calendar, Heart, Play, Pause, ChevronLeft, ChevronRight, Volume2, VolumeX, Music } from 'lucide-react';
-import { siteData } from '@/siteData';
+import { siteData, LOVE_MESSAGES } from '@/siteData';
 import type { Memory } from '@/types';
 import ParticleField from '@/components/ParticleField';
 import Lightbox from '@/components/Lightbox';
@@ -25,7 +25,6 @@ const photoRotations = ['rotate-[-2deg]', 'rotate-[1deg]', 'rotate-[-1deg]', 'ro
 
 const timelinePhotoGroups: Record<string, string[]> = {
   'dates': [
-    
     '/pictures/dates/pic13.jpeg',
     '/pictures/dates/pic11.jpeg',
     '/pictures/dates/pic16.jpeg',
@@ -104,9 +103,21 @@ export default function Memories() {
   const [isAutoPlaying, setIsAutoPlaying] = useState<Record<string, boolean>>({});
   const [visibleCards, setVisibleCards] = useState<Record<string, boolean>>({});
   
-  // Background music state
+  const [activePopup, setActivePopup] = useState<{
+    id: string;
+    message: string;
+    count: number;
+    style: React.CSSProperties;
+  } | null>(null);
+
+  // Queue state for non-repeating unique messages
+  const [messageQueue, setMessageQueue] = useState<string[]>([]);
+  const [totalSeenCount, setTotalSeenCount] = useState(0);
+
+  const elementRefs = useRef<Record<string, HTMLDivElement | HTMLSpanElement | null>>({});
+
   const [isPlayingMusic, setIsPlayingMusic] = useState<boolean>(true);
-  const [volume, setVolume] = useState<number>(0.20); // 20 out of 100 volume
+  const [volume, setVolume] = useState<number>(0.20);
   const [showMusicMenu, setShowMusicMenu] = useState<boolean>(false);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -164,7 +175,89 @@ export default function Memories() {
     return customMemories.filter((m) => m.category === filter);
   }, [filter]);
 
-  // Play music on page mount / return, and stop when navigating away or changing tabs
+  const getNextUniqueMessage = () => {
+    let queue = [...messageQueue];
+    if (queue.length === 0) {
+      queue = [...LOVE_MESSAGES];
+      // Fisher-Yates shuffle
+      for (let i = queue.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [queue[i], queue[j]] = [queue[j], queue[i]];
+      }
+    }
+    const nextMsg = queue.pop()!;
+    setMessageQueue(queue);
+    setTotalSeenCount((prev) => prev + 1);
+    return nextMsg;
+  };
+
+  const handleReveal = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (activePopup?.id === id) {
+      setActivePopup(null);
+      return;
+    }
+
+    const el = elementRefs.current[id];
+    const popupWidth = 280;
+    const popupHeight = 160;
+    const navBarLimit = 95;
+    const footerLimit = window.innerHeight - 95;
+
+    let leftPos = window.innerWidth / 2 - popupWidth / 2;
+    let topPos = 120;
+
+    if (el) {
+      const rect = el.getBoundingClientRect();
+      
+      if (rect.left > window.innerWidth / 2) {
+        leftPos = rect.left - popupWidth - 12;
+      } else {
+        leftPos = rect.right + 12;
+      }
+
+      if (leftPos < 16) leftPos = 16;
+      if (leftPos + popupWidth > window.innerWidth - 16) {
+        leftPos = window.innerWidth - popupWidth - 16;
+      }
+
+      topPos = rect.top + rect.height / 2 - popupHeight / 2;
+      if (topPos < navBarLimit) topPos = navBarLimit + 10;
+      if (topPos + popupHeight > footerLimit) topPos = footerLimit - popupHeight - 10;
+    }
+
+    const nextMsg = getNextUniqueMessage();
+
+    setActivePopup({
+      id,
+      message: nextMsg,
+      count: totalSeenCount + 1,
+      style: {
+        position: 'fixed',
+        left: `${leftPos}px`,
+        top: `${topPos}px`,
+        width: `${popupWidth}px`,
+        zIndex: 99999,
+      },
+    });
+  };
+
+  useEffect(() => {
+    if (!activePopup) return;
+    const handleClose = () => setActivePopup(null);
+    window.addEventListener('click', handleClose);
+    window.addEventListener('touchstart', handleClose);
+    window.addEventListener('keydown', handleClose);
+    window.addEventListener('scroll', handleClose);
+    return () => {
+      window.removeEventListener('click', handleClose);
+      window.removeEventListener('touchstart', handleClose);
+      window.removeEventListener('keydown', handleClose);
+      window.removeEventListener('scroll', handleClose);
+    };
+  }, [activePopup]);
+
   useEffect(() => {
     const audioEl = audioRef.current;
     if (audioEl) {
@@ -198,7 +291,6 @@ export default function Memories() {
     };
   }, []);
 
-  // Handle auto-collapsing menu if no action is taken after opening
   useEffect(() => {
     if (showMusicMenu) {
       if (menuTimerRef.current) clearTimeout(menuTimerRef.current);
@@ -211,7 +303,6 @@ export default function Memories() {
     };
   }, [showMusicMenu]);
 
-  // Close music popup menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (musicMenuRef.current && !musicMenuRef.current.contains(event.target as Node)) {
@@ -347,7 +438,7 @@ export default function Memories() {
   const categories = ['all', 'dates', 'trips', 'midnight-calls', 'temple', 'videos'];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cream-50 via-blush-50 to-lavender-50 pt-24 pb-24 px-4 relative">
+    <div className="min-h-screen bg-gradient-to-br from-cream-50 via-blush-50 to-lavender-50 pt-24 pb-24 px-4 relative overflow-x-hidden">
       {/* Background Audio Player */}
       <audio ref={audioRef} src="/music/music1.mp4" loop preload="auto" />
 
@@ -389,6 +480,31 @@ export default function Memories() {
       </div>
 
       <ParticleField count={10} type="stars" />
+
+      {/* Scattered Secret Spots safely placed strictly in outer side margins */}
+      {[
+        { id: 'mem-1', symbol: '♥', style: { top: '8%', left: '5%' } },
+        { id: 'mem-2', symbol: '♦', style: { top: '18%', right: '5%' } },
+        { id: 'mem-3', symbol: '✨', style: { top: '32%', left: '4%' } },
+        { id: 'mem-4', symbol: '♥', style: { top: '48%', right: '5%' } },
+        { id: 'mem-5', symbol: '♦', style: { top: '62%', left: '5%' } },
+        { id: 'mem-6', symbol: '✨', style: { top: '78%', right: '4%' } },
+        { id: 'mem-7', symbol: '♥', style: { top: '90%', left: '5%' } },
+      ].map((item) => (
+        <div
+          key={item.id}
+          ref={(el) => (elementRefs.current[item.id] = el)}
+          className="absolute z-10 pointer-events-auto"
+          style={item.style}
+        >
+          <span
+            onClick={(e) => handleReveal(item.id, e)}
+            className="cursor-pointer inline-block text-xs sm:text-sm text-stone-400 hover:text-blush-500 opacity-60 hover:opacity-100 transition-all select-none p-2"
+          >
+            {item.symbol}
+          </span>
+        </div>
+      ))}
 
       <div className="relative max-w-5xl mx-auto">
         {/* Title */}
@@ -469,7 +585,6 @@ export default function Memories() {
                   {/* Content card */}
                   <div className={`flex-1 ml-12 sm:ml-0 ${isLeft ? 'sm:pr-8' : 'sm:pl-8'}`}>
                     <div className="glass-card rounded-3xl p-5 shadow-lg hover-lift">
-                      {/* Media Ticker */}
                       {/* Media Ticker */}
                       <div className={`relative w-full mb-4 scrapbook-photo overflow-hidden ${rotation} bg-white p-2 shadow-md transition-transform duration-500 hover:rotate-0`}>
                         <div 
@@ -583,6 +698,38 @@ export default function Memories() {
           onClose={() => setLightboxIndex(null)}
           onNavigate={setLightboxIndex}
         />
+      )}
+
+      {/* Single Active Popup */}
+      {activePopup && (
+        <div 
+          onClick={(e) => e.stopPropagation()}
+          style={activePopup.style}
+          className="bg-[#fff0f3] border-2 border-[#ffccd5] p-4 rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.3)] text-left font-sans text-xs sm:text-sm text-[#4a3538] animate-fade-in pointer-events-auto"
+        >
+          <div className="flex justify-between items-center mb-2">
+            <span className="font-semibold text-[#d96b83] font-hand text-base">
+              ✨ Secret note
+            </span>
+            <button 
+              onClick={() => setActivePopup(null)}
+              className="text-stone-400 hover:text-stone-600 text-base font-bold px-1.5"
+            >
+              ×
+            </button>
+          </div>
+          <p className="m-0 leading-relaxed font-serif text-xs sm:text-sm">
+            "{activePopup.message}"
+          </p>
+          <div className="flex justify-between items-center mt-3 pt-1">
+            <span className="text-[10px] text-stone-400 italic">
+              (Press any key to close)
+            </span>
+            <span className="font-hand text-xs text-[#d96b83] font-medium">
+              - I love you
+            </span>
+          </div>
+        </div>
       )}
     </div>
   );
